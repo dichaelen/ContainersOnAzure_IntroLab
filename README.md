@@ -218,48 +218,7 @@ az group create --name <yourACIresourcegroup> --location <westeurope, eastus, we
 
 ### Associate the environment variables with Azure Container Instance
 
-We will now deploy our container instance via an ARM template, which is [here](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/azuredeploy.json) but before we do, we need to edit this document to ensure we set our environment variables.
-
-
-In the document, the following section needs to be amended, adding your environment keys like you did before:
-
-```
-
-"properties": {
-                "containers": [
-                    {
-                        "name": "[variables('container1name')]",
-                        "properties": {
-                            "image": "[variables('container1image')]",
-                            "environmentVariables": [
-                                {
-                                    "name": "DATABASE",
-                                    "value": "<your cosmodb username from step 1>"
-                                },
-                                {
-                                    "name": "PASSWORD",
-                                    "value": "<your cosmodb password from step 1>"
-                                },
-                                {
-                                    "name": "INSIGHTSKEY",
-                                    "value": "<you app insights key from step 2>"
-                                },
-                                {
-                                    "name": "SOURCE",
-                                    "value": "ACI"
-                                }
-                            ],
-
-```
-
-
-Once this document is saved, we can create the deployment via the az CLI. Enter the following:
-
-```
-az group deployment create --name <yourACIname> --resource-group <yourACIresourcegroup> --template-file /<path to your file>/azuredeploy.json
-```
-
-It is also possible to create the container instance via the Azure CLI directly.
+We will now deploy our container instance via the Azure CLI directly.
 
 ```
 az container create -n go-order-sb -g <yourACIresourcegroup> -e DATABASE=<your cosmodb username from step 1> PASSWORD=<your cosmodb password from step 1> INSIGHTSKEY=<your app insights key from step 2> SOURCE="ACI"--image <yourcontainerregistryinstance>.azurecr.io/go_order_sb:latest --registry-password <your acr admin password>
