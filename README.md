@@ -106,7 +106,7 @@ Note, the application runs on port 8080 which we will bind to the host as well. 
 If all goes well, you should see the application running on localhost:8080, see below:
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/localrun.png)
 
-Now you can navigate to localhost:8080/swagger and test the api. Select the 'POST' /order/ section, select the button "Try it out" and enter some values in the json provided and select "Execute", see below:
+Now you can navigate to localhost:8080/swagger and test the api (use Chrome or Firefox). Select the 'POST' /order/ section, select the button "Try it out" and enter some values in the json provided and select "Execute", see below:
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/swagger.png)
 
 If the request succeeded, you will get a CosmosDB Id returned for the order you have just placed, see below:
@@ -237,7 +237,7 @@ In the Kubernetes dashboard you should now see this created within the secrets s
 
 ### Associate the environment variables with container we want to deploy to Kubernetes
 
-We will now deploy our container via a yaml file, which is [here](https://github.com//ContainersOnAzure_MiniLab/blob/master/go_order_sb.yaml) but before we do, we need to edit this file to ensure we set our environment variables and ensure that you have set your private Azure Container Registry correctly:
+We will now deploy our container via a yaml file, which is [here](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/go_order_sb.yaml) but before we do, we need to edit this file to ensure we set our environment variables and ensure that you have set your private Azure Container Registry correctly:
 
 ```
 
