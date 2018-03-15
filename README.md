@@ -1,8 +1,6 @@
 # Intro to Containers on Azure
 This lab aims to show a few ways you can quickly deploy container workloads to Azure.
 
-* madsd was here! 
-
 # What is it?
 
 This intro lab serves to guide you on a few ways you can deploy a container on Azure, namely:
