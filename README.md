@@ -42,11 +42,11 @@ Let's start by creating a Cosmos DB instance in the portal, this is a quick proc
 * Location: <yourlocation>
 
 See below:
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/CosmosDB.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/CosmosDB.png)
 
 Once the DB is provisioned, we need to get the Database Username and Password, these may be found in the Settings --> Connection Strings section of your DB. We will need these to run our container, so copy them for convenient access. See below:
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/DBKeys.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/DBKeys.png)
 
 ## 2. Provisioning an Application Insights instance
 
@@ -58,15 +58,15 @@ In the Azure portal, select create new Application Insights instance, enter the 
 * Location: <yourlocation>
 
 See below:
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/ApplicationInsights.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/ApplicationInsights.png)
 
 Once Application Insights is provisioned, we need to get the Instrumentation key, this may be found in the Overview section. We will need this to run our container, so copy it for convenient access. See below:
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/AppKey.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/AppKey.png)
 
 ## 3. Provisioning an Azure Container Registry instance
 
-If you would like an example of how to setup an [Azure Container Registry](https://azure.microsoft.com/en-us/services/container-registry/) instance via ARM, have a look [here](https://github.com/mpeder/CADScenario_Recommendations)
+If you would like an example of how to setup an [Azure Container Registry](https://azure.microsoft.com/en-us/services/container-registry/) instance via ARM, have a look [here](https://github.com/shanepeckham/CADScenario_Recommendations)
 
 Navigate to the Azure Portal and select create new Azure Container Registry, enter the following parameters:
 
@@ -78,14 +78,14 @@ Navigate to the Azure Portal and select create new Azure Container Registry, ent
 * Storage Account: Select the default value provided
 
 See below:
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/ContainerRegistry.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/ContainerRegistry.png)
 
 ## 4. Pull the container to your environment and set the environment keys
 
 Open up your docker command window (if using Windows open it with elevated privileges) and type the following:
 
 ``` 
-docker pull mpeder/go_order_sb
+docker pull shanepeckham/go_order_sb
 ```
 
 We will now test the image locally to ensure that it is working and connecting to our CosmosDB and Application Insights instances. The keys you copied for the DB and App Insights keys are set as environment variables within the container, so we will need to ensure we populate these.
@@ -99,18 +99,18 @@ The environment keys that need to be set are as follows:
 So to run the container on your local machine, enter the following command, substituting your environment variable values (if you are running Docker on Windows, omit the 'sudo'):
 
 ```
-sudo docker run --name go_order_sb -p 8080:8080 -e DATABASE="<your cosmodb username from step 1>" -e PASSWORD="<your cosmodb password from step 1>" -e INSIGHTSKEY="<you app insights key from step 2>" -e SOURCE="localhost"  --rm -i -t mpeder/go_order_sb
+sudo docker run --name go_order_sb -p 8080:8080 -e DATABASE="<your cosmodb username from step 1>" -e PASSWORD="<your cosmodb password from step 1>" -e INSIGHTSKEY="<you app insights key from step 2>" -e SOURCE="localhost"  --rm -i -t shanepeckham/go_order_sb
 ```
 Note, the application runs on port 8080 which we will bind to the host as well. If you are running on Windows, select 'Allow Access' on Windows Firewall.
 
 If all goes well, you should see the application running on localhost:8080, see below:
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/localrun.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/localrun.png)
 
 Now you can navigate to localhost:8080/swagger and test the api. Select the 'POST' /order/ section, select the button "Try it out" and enter some values in the json provided and select "Execute", see below:
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/swagger.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/swagger.png)
 
 If the request succeeded, you will get a CosmosDB Id returned for the order you have just placed, see below:
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/swaggerresponse.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/swaggerresponse.png)
 
 We can now go and query CosmosDB to check our entry there, in the Azure portal, navigate back to your Cosmos DB instance and go to the section Data Explorer (note, at the time of writing this is in preview so is subject to change). We can now query for the order we placed. A collection called 'orders' will have been created within your database, you can then apply a filter for the id we created, namely:
 
@@ -119,13 +119,13 @@ We can now go and query CosmosDB to check our entry there, in the Azure portal, 
 ```
 See below:
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/CosmosQuery.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/CosmosQuery.png)
 
 ## 5. Retag the image and upload it your private Azure Container Registry
 
 Navigate to the Azure Container Registry instance you provisioned within the Azure portal. Click on the *Quick Start* blade, this will provide you with the relevant commands to upload a container image to your registry, see below:
 
-![alt text](https://github.com/mpeder/CADScenario_Recommendations/blob/master/images/quicksstartacs.png)
+![alt text](https://github.com/shanepeckham/CADScenario_Recommendations/blob/master/images/quicksstartacs.png)
 
 Now we will push the image up to the Azure Container Registry, enter the following (from the quickstart screen):
 
@@ -136,16 +136,16 @@ docker login <yourcontainerregistryinstance>.azurecr.io
 
 To get the username and password, navigate to the *Access Keys* blade, see below:
 
-![alt text](https://github.com/mpeder/CADScenario_Recommendations/blob/master/images/acskeys.png)
+![alt text](https://github.com/shanepeckham/CADScenario_Recommendations/blob/master/images/acskeys.png)
 
 You will receive a 'Login Succeeded' message. Now type the following:
 ```
-docker tag mpeder/go_order_sb <yourcontainerregistryinstance>.azurecr.io/go_order_sb
+docker tag shanepeckham/go_order_sb <yourcontainerregistryinstance>.azurecr.io/go_order_sb
 docker push <yourcontainerregistryinstance>.azurecr.io/go_order_sb
 ```
 Once this has completed, you will be able to see your container uploaded to the Container Registry within the portal, see below:
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/registryrepo.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/registryrepo.png)
 
 ## 6. Deploy the container to Azure Container Instance
 
@@ -233,11 +233,11 @@ kubectl create secret docker-registry <yourcontainerregistryinstance> --docker-s
 
 In the Kubernetes dashboard you should now see this created within the secrets section:
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/K8secrets.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/K8secrets.png)
 
 ### Associate the environment variables with container we want to deploy to Kubernetes
 
-We will now deploy our container via a yaml file, which is [here](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/go_order_sb.yaml) but before we do, we need to edit this file to ensure we set our environment variables and ensure that you have set your private Azure Container Registry correctly:
+We will now deploy our container via a yaml file, which is [here](https://github.com//ContainersOnAzure_MiniLab/blob/master/go_order_sb.yaml) but before we do, we need to edit this file to ensure we set our environment variables and ensure that you have set your private Azure Container Registry correctly:
 
 ```
 
@@ -269,15 +269,15 @@ You should get a success message that a deployment and service has been created.
 
 #### Your deployments running 
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/k8deployments.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/k8deployments.png)
 
 #### Your three pods
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/k8pods.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/k8pods.png)
 
 #### Your service and external endpoint
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/k8service.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/k8service.png)
 
 You can now navigate to http://k8serviceendpoint:8080/swagger and test your API
 
@@ -287,19 +287,19 @@ The container we have deployed writes simple events to Application Insights with
 
 In portal navigate to the Application Insights instance you provisioned and 'Metrics Explorer', see below:
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/MetricsExplorer.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/MetricsExplorer.png)
  
 Click edit on one of the charts, select a TimeRange and set the Filters to 'Custom Event'. This will retrieve all of the writes to CosmosDB, see below:
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/Filter.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/Filter.png)
 
 Now we can Search the events by the source, for example 'K8' to retrieve only Kubernetes cluster writes, see below:
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/Search.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/Search.png)
 
 Finally, for more powerful queries, select the 'Analytics' button, see below:
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/images/Analytics.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/Analytics.png)
 
 
 <!-- LINKS - external -->
