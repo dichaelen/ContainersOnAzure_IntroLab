@@ -179,42 +179,51 @@ Once the container has moved to "Succeeded" state you will see your external IP 
 
 ## 7. Deploy the container to an Azure Managed Kubernetes Cluster (AKS)
 
-Here we will deploy a Kubernetes cluster quickly using the [Azure Container Engine](https://azure.microsoft.com/en-us/services/container-service/). Note, the approach below will control all aspects of your Kubernetes setup and is intended for quick provisioning, for more control on the implementation look at the [following](https://github.com/Azure/acs-engine/blob/master/docs/acsengine.md). 
+Here we will deploy a Kubernetes cluster quickly using Azure CLI
 
-We will start by once again creating a resource group for our cluster using the az CLI and the acs engine, in a command window enter the following:
-
-```
-az group create --name <yourresourcegroupk8> --location <yourlocation>
-```
-
-Upon receiving your "provisioningState": "Succeeded" json response, enter the following:
+## Enabling AKS preview for your Azure subscription
+While AKS is in preview, creating new clusters requires a feature flag on your subscription. You may request this feature for any number of subscriptions that you would like to use. Use the `az provider register` command to register the AKS provider:
 
 ```
-az acs create --orchestrator-type kubernetes --resource-group <yourresourcegroupk8> --name <yourk8cluster> --generate-ssh-keys
-```
-In case you have not already, install the kubernetes client:
-
-```
-=======
-az acs kubernetes install-cli
-
+az provider register -n Microsoft.ContainerService --debug
 ```
 
-You will now be able to connect to your cluster with the following command:
+After registering, you are now ready to create a Kubernetes cluster with AKS.
+
+The following example creates a resource group named *myResourceGroup* in the *westeurope* location.
 
 ```
-az acs kubernetes get-credentials --resource-group=<yourresourcegroupk8> --name=<yourk8cluster>
+az group create --name myResourceGroup --location westeurope
 ```
 
-And to access your Kubernetes graphical dashboard enter:
+## Create Kubernetes cluster
+
+Use the [az aks create](https://docs.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az_aks_create) command to create an AKS cluster. The following example creates a cluster named myAKSCluster with three nodes.
 
 ```
-az acs kubernetes browse -g <yourresourcegroupk8> -n <yourk8cluster> 
+az aks create --resource-group myResourceGroup --name myAKSCluster --node-count 3 --generate-ssh-keys
 ```
 
-Note, it is always a good idea to apply an auto shutdown policy to your VMs to avoid unnecessary costs for a test cluster, you can do this in the portal by navigating to the VMs provisioned within your resource group <yourresourcegroupk8> and navigating to the Auto Shutdown section for each one, see below:
+To manage a Kubernetes cluster, use [kubectl][kubectl], the Kubernetes command-line client.
 
-![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/autoshutdown.png)
+If you're using Azure Cloud Shell, kubectl is already installed. If you want to install it locally, use the [az aks install-cli][az-aks-install-cli] command.
+
+
+```
+az aks install-cli
+```
+
+To configure kubectl to connect to your Kubernetes cluster, use the [az aks get-credentials][az-aks-get-credentials] command. This step downloads credentials and configures the Kubernetes CLI to use them.
+
+```
+az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
+```
+
+To verify the connection to your cluster, use the [kubectl get][kubectl-get] command to return a list of the cluster nodes. Note that this can take a few minutes to appear.
+
+```azurecli-interactive
+kubectl get nodes
+```
 
 ### Register our Azure Container Registry within Kubernetes
 
@@ -274,198 +283,6 @@ You should get a success message that a deployment and service has been created.
 
 You can now navigate to http://k8serviceendpoint:8080/swagger and test your API
 
-## 8. Deploy the container to an Azure Container Engine and manage it from within your Kubernetes cluster
-
-Now we will deploy our container to Azure Container Instances and use the [ACI connector](https://github.com/azure/aci-connector-k8s) to manage it from within our Kubernetes cluster.
-
-### Create a Service Principle
-
-A service principal is required to allow the ACI Connector to create resources in your Azure subscription. You can create one using the az CLI using the instructions below.
-
-Find your ``` subscriptionId ``` with the az CLI:
-
-```
-$ az account list -o table
-Name                                             CloudName    SubscriptionId                        State    IsDefault
------------------------------------------------  -----------  ------------------------------------  -------  -----------
-Pay-As-You-Go                                    AzureCloud   12345678-9012-3456-7890-123456789012  Enabled  True
-```
-
-Use ``` az ``` to create a Service Principal that can perform operations on your resource group:
-```
-$ az ad sp create-for-rbac --role=Contributor --scopes /subscriptions/<subscriptionId>/resourceGroups/<yourresourcegroupk8>
-```
-After one or a few attempts, you should see the following json structure being output:
-```
-{
-  "appId": "<redacted>",
-  "displayName": "azure-cli-2017-07-19-19-13-19",
-  "name": "http://azure-cli-2017-07-19-19-13-19",
-  "password": "<redacted>",
-  "tenant": "<redacted>"
-}
-```
-
-#### Install the ACI Connector
-
-Edit the [aci_connector_go_order_sb.yaml](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/aci_connector_go_order_sb.yaml) and input environment variables using the values above:
-
-* AZURE_CLIENT_ID: insert appId
-* AZURE_CLIENT_KEY: insert password
-* AZURE_TENANT_ID: insert tenant
-* AZURE_SUBSCRIPTION_ID: insert subscriptionId
-
-```
-$ kubectl create -f ./<your_path>/aci-connector.yaml 
-deployment "aci-connector" created
-
-$ kubectl get nodes -w
-NAME                        STATUS                     AGE       VERSION
-aci-connector               Ready                      3s        1.6.6
-k8s-agentpool1-31868821-0   Ready                      5d        v1.7.0
-k8s-agentpool1-31868821-1   Ready                      5d        v1.7.0
-k8s-agentpool1-31868821-2   Ready                      5d        v1.7.0
-k8s-master-31868821-0       Ready,SchedulingDisabled   5d        v1.7.0
-```
-
-You should now the see the ACI Connector running within your Kubernetes cluster, see below:
-
-![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/k8acsconnector.png)
-
-### Deploy the container to Azure Container Instance managed by Kubernetes and set environment variables
-
-We will now deploy our container via a yaml file again, which is [here](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/go_order_sb_aci_node.yaml) but before we do, we need to edit this file to ensure we set our environment variables.
-
-Now we want to add the environment variables and ensure that you have set your private Azure Container Registry correctly:
-```
-spec:
-  containers:
-  - name: goordersb
-    image: <yourcontainerregistry>.azurecr.io/go_order_sb
-    env:
-    - name: DATABASE
-      value: ""
-    - name: PASSWORD
-      value: ""
-    - name: INSIGHTSKEY
-      value: ""
-    - name: SOURCE
-      value: "K8ACI"
-    ports:
-      - containerPort: 8080
-  imagePullSecrets:
-    - name: <yourcontainerregistry>
-  dnsPolicy: ClusterFirst
-  nodeName: aci-connector
-  
-  ```
-  
-Deploy our container using the following command:
-```
-kubectl create -f ./<your_path>/go_order_sb_aci_node.yaml
-```
-Once deployed you should now see your container instances running, one within your cluster, and one running on the ACI Connector pod, see below:
-  
- ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/K8acipod.png)
-
-Click on the ACI Connector pod, mark down the IP address, and navigate to the following URL to test your API:
-```
-http://<your_ACI_Connector_pod_IP_address>:8080/swagger
-```
-
- ### Deploy Helm and Draft to your Kubernetes cluster
- Firstly, download [Helm](https://github.com/kubernetes/helm/releases/tag/v2.5.1), unpack it and place it within your PATH, or ammend your path environment variable to include the location of the helm binary.
-
- Initialise the helm configuration with
-
- ```
- helm init
- ```
-
- Use Helm to search for and install stable/traefik, and ingress controller to enable inbound requests for your builds.
-
- ```
- $ helm search traefik
-NAME            VERSION DESCRIPTION
-stable/traefik  1.3.0   A Traefik based Kubernetes ingress controller w...
-
-$ helm install stable/traefik --name ingress
-```
-
-Once the ingress controller has been deployed, check the IP address that has been allocated within the Pod:
-
-```
-kubectl get svc -w
-NAME              CLUSTER-IP   EXTERNAL-IP     PORT(S)                      AGE
-ingress-traefik   10.0.98.22   23.101.66.197   80:31765/TCP,443:31391/TCP   10h
-kubernetes        10.0.0.1     <none>          443/TCP                      13h
-```
-
-Usually, it would be down to the owner of the Kubernetes and Helm installation to ammend their DNS zone to allow applications to be published in a catchall domain.
-
-For the purpose of this workshop, let the moderator know the IP address of your ingress controller, and they will create the associated A record
-
-```
-az network dns record-set a add-record --ipv4-address 23.101.66.197 --record-set-name 'apps' -g inklin -z inkl.in
-```
-
-Once DNS record has been created for the ingress controller, you will then need to install [Draft](https://azuredraft.blob.core.windows.net/draft/draft-canary-linux-amd64.tar.gz) and initialise the Draft environment
-
-```
-helm init
-Creating /home/justin/.draft
-Creating /home/justin/.draft/plugins
-Creating /home/justin/.draft/packs
-Creating pack python...
-Creating pack php...
-Creating pack ruby...
-Creating pack csharp...
-Creating pack gradle...
-Creating pack javascript...
-Creating pack maven pom...
-Creating pack go...
-$DRAFT_HOME has been configured at /home/justin/.draft.
-
-In order to install Draft, we need a bit more information...
-
-1. Enter your Docker registry URL (e.g. docker.io/myuser, quay.io/myuser, myregistry.azurecr.io): inklin.azurecr.io
-2. Enter your username: inklin
-3. Enter your password: 
-4. Enter your top-level domain for ingress (e.g. draft.example.com): apps.inkl.in
-Draft has been installed into your Kubernetes Cluster.
-Happy Sailing!
-```
-
-Now that Draft has been initialised, you are ready to start working on your first app.
-
-The Azure Draft team has published a number of example bootstraps for popular languages [here](https://github.com/Azure/draft/tree/master/examples).  Download the language example you wish to use, and then initialise the Draft environment to continue working.
-
-```
-draft create
---> Draft detected the primary language as Python with 96.875000% certainty.
---> Ready to sail
-```
-
-You are now ready to Draft Up your environment to the Kubernetes cluster.
-
-```
-draft up
-Draft Up Started: 'eponymous-lion'
-eponymous-lion: Building Docker Image: SUCCESS ⚓  (1.0004s)
-eponymous-lion: Pushing Docker Image: SUCCESS ⚓  (43.0938s)
-eponymous-lion: Releasing Application: SUCCESS ⚓  (6.1915s)
-eponymous-lion: Build ID: 01BS8WEYATJRXWR24SF5608TY0
-Releasing Application: started
-Releasing Application: Upgrading eponymous-lion.
-Releasing Application: eponymous-lion DEPLOYED
-Releasing Application: notes:
-  http://eponymous-lion.apps.inkl.in to access your application
-
-Releasing Application: success
-```
-
-Any changes the (in this Python example) to the app.py file will trigger another build and deployment to the Kubernetes environment.
-
 ### View container telemetry in Application Insights
 
 The container we have deployed writes simple events to Application Insights with a time stamp but we could write much richer metrics. Application Insights provides a number of prebuilt dashboards to view application statistics alongside a query tool for getting deep custom insights. For the purposes of this intro we will simply expose the custom events we have tracked, namely the commit to the Azure CosmosDB.
@@ -485,3 +302,22 @@ Now we can Search the events by the source, for example 'K8' to retrieve only Ku
 Finally, for more powerful queries, select the 'Analytics' button, see below:
 
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/Analytics.png)
+
+
+<!-- LINKS - external -->
+[azure-vote-app]: https://github.com/Azure-Samples/azure-voting-app-redis.git
+[kubectl]: https://kubernetes.io/docs/user-guide/kubectl/
+[kubectl-create]: https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#create
+[kubectl-get]: https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#get
+[kubernetes-documentation]: https://kubernetes.io/docs/home/
+[kubernetes-service]: https://kubernetes.io/docs/concepts/services-networking/service/
+
+<!-- LINKS - internal -->
+[az-aks-browse]: /cli/azure/aks?view=azure-cli-latest#az_aks_browse
+[az-aks-create]: /cli/azure/aks?view=azure-cli-latest#az_aks_create
+[az-aks-get-credentials]: /cli/azure/aks?view=azure-cli-latest#az_aks_get_credentials
+[az aks install-cli]: /cli/azure/aks?view=azure-cli-latest#az_aks_install_cli
+[az-group-create]: /cli/azure/group#az_group_create
+[az-group-delete]: /cli/azure/group#az_group_delete
+[azure-cli-install]: /cli/azure/install-azure-cli
+[aks-tutorial]: ./tutorial-kubernetes-prepare-app.md
