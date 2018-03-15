@@ -149,62 +149,7 @@ Once this has completed, you will be able to see your container uploaded to the 
 
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/registryrepo.png)
 
-## 6. Deploy the container to App Services
-
-We will now deploy the container to Azure App Services via the Azure CLI. If you would like an example of how to setup an [App Service Application](https://docs.microsoft.com/en-us/azure/app-service-web/app-service-linux-intro) instance via ARM and associate the container with your Azure Container Registry, have a look [here](https://github.com/shanepeckham/CADScenario_Recommendations)
-
-[Login to your Azure subscription via the Azure CLI](https://docs.microsoft.com/en-us/cli/azure/authenticate-azure-cli) and enter the following first command to create your App service plan:
-
-```
-az appservice plan create -g <yourresourcegroup> -n <yourappserviceplan> --is-linux
-```
-
-Upon receiving the 'provisioningState': 'Succeeded' json response, enter the following to create your app which will run our API:
-
-```
-az webapp create -n <your unique web app name> -p <yourappserviceplan> -g <yourresourcegroup> --deployment-container-image-name <yourcontainerregistryinstance>.azurecr.io/go_order_sb
-```
-
-If you are not using the latest Azure CLI version, you may need to use the following alternative syntax:
-
-```az appservice web create -n <your unique web app name> -p <yourappserviceplan> -g <yourresourcegroup>```
-
-
-Upon receiving the successful completion json response, we will now associate our container from our private Azure Registry to the App Service App, type the following (if you are using PowerShell on Windows, you may need to remove any line breaks and continue on a single line):
-
-```
-az webapp config container set -n <your unique web app name> -g <yourresourcegroup>
---docker-custom-image-name <yourcontainerregistryinstance>.azurecr.io/go_order_sb:latest
---docker-registry-server-url https://<yourcontainerregistryinstance>.azurecr.io
---docker-registry-server-user <your acr admin username>
---docker-registry-server-password <your acr admin password>
-```
-
-### Associate the environment variables with API App
-
-Now we need to go and set the environment variables for our container to ensure that we can connect to our Cosmos DB and Application Insights. Navigate to the *Application Settings* pane within the Azure portal for your Web App and add the following entries in the 'App Settings' section, namely:
-
-The environment keys that need to be set are as follows:
-* DATABASE: <your cosmodb username from step 1>
-* PASSWORD: <your cosmodb password from step 1>
-* INSIGHTSKEY: <you app insights key from step 2>
-* SOURCE: This is a free text field which we will use specify where we are running the container from. I use the values localhost, AppService, ACI and K8 for my tests
-* WEBSITES_PORT: 8080 
-
-See below:
-![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/AppSettingsWeb.png)
-
-Now we can test our app service container, navigate to the Overview section to get the URL for your API, see below:
-
-![alt text](https://github.com/shanepeckham/CADLab_Loyalty/blob/master/Images/App_URI.png)
-
-Ensure you add ```/swagger``` on to the end of the URL to access the Swagger API test harness.
-
-### Stream the logs from the App Service container
-
-To see the log stream of your container running in the web app, navigate to: ```https://<yourwebsitename>.scm.azurewebsites.net/api/logstream```
-
-## 7. Deploy the container to Azure Container Instance
+## 6. Deploy the container to Azure Container Instance
 
 Now we will deploy our container to [Azure Container Instances](https://azure.microsoft.com/en-us/services/container-instances/). 
 
@@ -232,7 +177,7 @@ az container show -n go-order-sb -g <yourACIresourcegroup> -o table
 
 Once the container has moved to "Succeeded" state you will see your external IP address under the "IP:ports" column, copy this value and navigate to http://yourACIExternalIP:8080/swagger and test your API like before.
 
-## 8. Deploy the container to an Azure Container Instance provisioned Kubernetes cluster
+## 7. Deploy the container to an Azure Managed Kubernetes Cluster (AKS)
 
 Here we will deploy a Kubernetes cluster quickly using the [Azure Container Engine](https://azure.microsoft.com/en-us/services/container-service/). Note, the approach below will control all aspects of your Kubernetes setup and is intended for quick provisioning, for more control on the implementation look at the [following](https://github.com/Azure/acs-engine/blob/master/docs/acsengine.md). 
 
