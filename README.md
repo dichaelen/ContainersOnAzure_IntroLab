@@ -26,20 +26,26 @@ For this Lab you will require:
 * Install Kubectl, get it here - https://kubernetes.io/docs/tasks/tools/install-kubectl/
 * Install Postman, get it here - https://www.getpostman.com - this is optional but useful
 
-When using the Azure CLI, after logging in, if you have more than one subscripton you may need to set the default subscription you wish to perform actions against. To do this use the following command:
+When using the Azure CLI, you first have to log in. You do this by running the command below, and follow the instructions. This will guide you to open a browser and enter a code, after which you can enter your credentials to start a session.
+
+```
+az login
+```
+After logging in, if you have more than one subscripton you may need to set the default subscription you wish to perform actions against. To see the current default subscription, you can run az account show.
 
 ```
 az account set --subscription "<your requried subscription guid>"
 ```
 
+
 ## 1. Provisioning a Cosmos DB instance
 
 Let's start by creating a Cosmos DB instance in the portal, this is a quick process. Navigate to the Azure portal and create a new Azure Cosmos DB instance, enter the following parameters:
 
-* ID: <yourdbinstance>
+* ID: &lt;unique db instance name&gt;
 * API: Select MongoDB as the API as our container API will use this driver
-* ResourceGroup: <yourresourcegroup>
-* Location: <yourlocation>
+* ResourceGroup: &lt;unique resource group name&gt;
+* Location: West Europe
 
 See below:
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/CosmosDB.png)
@@ -52,10 +58,10 @@ Once the DB is provisioned, we need to get the Database Username and Password, t
 
 In the Azure portal, select create new Application Insights instance, enter the following parameters:
 
-* Name: <yourappinsightsinstance>
+* Name: &lt;unique instance name&gt;
 * Application Type: General
-* ResourceGroup: <yourresourcegroup>
-* Location: <yourlocation>
+* ResourceGroup: &lt;resource group you created in step 1&gt;
+* Location: West Europe
 
 See below:
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/ApplicationInsights.png)
@@ -70,12 +76,11 @@ If you would like an example of how to setup an [Azure Container Registry](https
 
 Navigate to the Azure Portal and select create new Azure Container Registry, enter the following parameters:
 
-* Registry Name: <yourcontainerregistryinstance>
-* ResourceGroup: <yourresourcegroup>
-* Location: <yourlocation>
+* Registry Name: &lt;unique instance name&gt;
+* ResourceGroup: &lt;resource group you created in step 1&gt;
+* Location: West Europe
 * Admin User: Enable
-* SKU: Classic
-* Storage Account: Select the default value provided
+* SKU: Basic
 
 See below:
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/ContainerRegistry.png)
