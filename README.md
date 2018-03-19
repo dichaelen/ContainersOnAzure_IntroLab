@@ -289,7 +289,7 @@ In portal navigate to the Application Insights instance you provisioned and clic
  
 Click edit on one of the charts, select a TimeRange and set the Filters to the event names. This will retrieve all of the writes to CosmosDB, see below:
 
-![alt text](https://github.com/shanepeckham/ContainersOnAzure_IntroLab/blob/master/images/AppInsightsFilter.png)
+![alt text](https://github.com/mpeder/ContainersOnAzure_IntroLab/blob/master/images/AppInsightsFilter.png)
 
 Finally, for more powerful queries, select the 'Analytics' button, see below:
 
