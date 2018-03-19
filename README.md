@@ -285,7 +285,7 @@ The container we have deployed writes simple events to Application Insights with
 
 In portal navigate to the Application Insights instance you provisioned and click 'Metrics Explorer', see below:
 
-![alt text](https://github.com/mpeder/ContainersOnAzure_IntroLab/blob/master/images/AppInsightsSearch.png)
+![alt text](https://github.com/mpeder/ContainersOnAzure_IntroLab/blob/master/images/AppInsightsMetrics.png)
  
 Click edit on one of the charts, select a TimeRange and set the Filters to the event names. This will retrieve all of the writes to CosmosDB, see below:
 
