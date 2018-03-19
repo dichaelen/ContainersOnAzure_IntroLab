@@ -154,36 +154,32 @@ Once this has completed, you will be able to see your container uploaded to the 
 
 Now we will deploy our container to [Azure Container Instances](https://azure.microsoft.com/en-us/services/container-instances/). 
 
-In the command terminal, login using the AZ CLI and we will start off by creating a new resource group for our Container instance. At the time of writing this functionality is still in preview and is thus not available in all regions (it is currently available in westeurope, eastus, westus), hence why we will create a new resource group just in case.
-
-Enter the following:
+We will deploy our container instance via the Azure CLI directly.
 
 ```
-az group create --name <yourACIresourcegroup> --location <westeurope, eastus, westus>
-```
-
-### Associate the environment variables with Azure Container Instance
-
-We will now deploy our container instance via the Azure CLI directly.
-
-```
-az container create -n go-order-sb -g <yourACIresourcegroup> -e DATABASE=<your cosmodb username from step 1> PASSWORD=<your cosmodb password from step 1> INSIGHTSKEY=<your app insights key from step 2> SOURCE="ACI"--image <yourcontainerregistryinstance>.azurecr.io/go_order_sb:latest --registry-password <your acr admin password>
+az container create -n go-order-sb -g <myResourceGroup> -e DATABASE=<your cosmodb username from step 1> PASSWORD=<your cosmodb password from step 1> INSIGHTSKEY=<your app insights key from step 2> SOURCE="ACI"--image <yourcontainerregistryinstance>.azurecr.io/go_order_sb:latest --registry-password <your acr admin password> --memory 1 --cpu 1 --dns-name-label <unique dns prefix> --ports 8080
 ```
 
 You can check the status of the deployment by issuing the container list command:
 
 ```
-az container show -n go-order-sb -g <yourACIresourcegroup> -o table
+az container show -n go-order-sb -g <myResourceGroup> -o table
 ```
 
 Once the container has moved to "Succeeded" state you will see your external IP address under the "IP:ports" column, copy this value and navigate to http://yourACIExternalIP:8080/swagger and test your API like before.
 
 ## 7. Deploy the container to an Azure Managed Kubernetes Cluster (AKS)
 
-Here we will deploy a Kubernetes cluster quickly using Azure CLI
+Here we will deploy a Kubernetes cluster using Azure CLI
 
 ## Enabling AKS preview for your Azure subscription
-While AKS is in preview, creating new clusters requires a feature flag on your subscription. You may request this feature for any number of subscriptions that you would like to use. Use the `az provider register` command to register the AKS provider:
+While AKS is in preview, creating new clusters may require a feature flag on your subscription. You may request this feature for any number of subscriptions that you would like to use. To check if the feature is enabled, run the following command.
+
+```
+az provider show -n Microsoft.ContainerService -o table
+```
+
+Use the `az provider register` command to register the AKS provider, if it is not already registered:
 
 ```
 az provider register -n Microsoft.ContainerService --debug
@@ -191,18 +187,13 @@ az provider register -n Microsoft.ContainerService --debug
 
 After registering, you are now ready to create a Kubernetes cluster with AKS.
 
-The following example creates a resource group named *myResourceGroup* in the *westeurope* location.
-
-```
-az group create --name myResourceGroup --location westeurope
-```
-
 ## Create Kubernetes cluster
 
 Use the [az aks create](https://docs.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az_aks_create) command to create an AKS cluster. The following example creates a cluster named myAKSCluster with three nodes.
+This takes about 10 minutes, so grab a cup of coffee, read the documentation: https://docs.microsoft.com/en-us/azure/aks/intro-kubernetes or watch a video: https://channel9.msdn.com/Shows/Azure-Friday/Container-Orchestration-Simplified-with-Managed-Kubernetes-in-Azure-Container-Service-AKS...
 
 ```
-az aks create --resource-group myResourceGroup --name myAKSCluster --node-count 3 --generate-ssh-keys
+az aks create --resource-group <myResourceGroup> --location westeurope --name myAKSCluster --node-count 3 --generate-ssh-keys --debug
 ```
 
 To manage a Kubernetes cluster, use [kubectl][kubectl], the Kubernetes command-line client.
@@ -222,7 +213,7 @@ az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
 
 To verify the connection to your cluster, use the [kubectl get][kubectl-get] command to return a list of the cluster nodes. Note that this can take a few minutes to appear.
 
-```azurecli-interactive
+```
 kubectl get nodes
 ```
 
@@ -234,13 +225,17 @@ We now want to register our private Azure Container Registry with our Kubernetes
 kubectl create secret docker-registry <yourcontainerregistryinstance> --docker-server=<yourcontainerregistryinstance>.azurecr.io --docker-username=<your acr admin username> --docker-password=<your acr admin password> --docker-email=<youremailaddress.com>
 ```
 
+To view the Kubernetes dashboard, start the proxy from command line and access the dashboard from your browser on http://localhost:8001/ui/
+```
+kubectl proxy
+```
 In the Kubernetes dashboard you should now see this created within the secrets section:
 
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/K8secrets.png)
 
 ### Associate the environment variables with container we want to deploy to Kubernetes
 
-We will now deploy our container via a yaml file, which is [here](https://github.com/mpeder/ContainersOnAzure_MiniLab/blob/master/go_order_sb.yaml) but before we do, we need to edit this file to ensure we set our environment variables and ensure that you have set your private Azure Container Registry correctly:
+We will now deploy our container via a yaml file, which is [here](https://github.com/mpeder/ContainersOnAzure_IntroLab/blob/master/go_order_sb.yaml) but before we do, we need to edit this file to ensure we set our environment variables and ensure that you have set your private Azure Container Registry correctly:
 
 ```
 
@@ -288,17 +283,13 @@ You can now navigate to http://k8serviceendpoint:8080/swagger and test your API
 
 The container we have deployed writes simple events to Application Insights with a time stamp but we could write much richer metrics. Application Insights provides a number of prebuilt dashboards to view application statistics alongside a query tool for getting deep custom insights. For the purposes of this intro we will simply expose the custom events we have tracked, namely the commit to the Azure CosmosDB.
 
-In portal navigate to the Application Insights instance you provisioned and 'Metrics Explorer', see below:
+In portal navigate to the Application Insights instance you provisioned and click 'Metrics Explorer', see below:
 
-![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/MetricsExplorer.png)
+![alt text](https://github.com/mpeder/ContainersOnAzure_IntroLab/blob/master/images/AppInsightsSearch.png)
  
-Click edit on one of the charts, select a TimeRange and set the Filters to 'Custom Event'. This will retrieve all of the writes to CosmosDB, see below:
+Click edit on one of the charts, select a TimeRange and set the Filters to the event names. This will retrieve all of the writes to CosmosDB, see below:
 
-![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/Filter.png)
-
-Now we can Search the events by the source, for example 'K8' to retrieve only Kubernetes cluster writes, see below:
-
-![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/Search.png)
+![alt text](https://github.com/shanepeckham/ContainersOnAzure_IntroLab/blob/master/images/AppInsightsFilter.png)
 
 Finally, for more powerful queries, select the 'Analytics' button, see below:
 
