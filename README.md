@@ -16,7 +16,7 @@ This intro lab serves to guide you on two ways you can deploy a container on Azu
 
 # Preparing for this lab
 
-For this Lab you will require:
+For this Lab you will require Windows machine with the following:
 
 * Install the Azure CLI 2.0, get it here - https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 * Install Docker, get it here - https://docs.docker.com/engine/installation/
@@ -24,6 +24,8 @@ For this Lab you will require:
 * Install Postman, get it here - https://www.getpostman.com - this is optional but useful
 
 When using the Azure CLI, you first have to log in. You do this by running the command below, and follow the instructions. This will guide you to open a browser and enter a code, after which you can enter your credentials to start a session.
+
+If you are using an older Windows version we recommend you using an Ubuntu VM, connect to it using SSH, and run the Docker commands there. You can still run the Azure CLI locally. If you don't have and SSH tool installed you can get Putty [Putty](https://www.putty.org/).
 
 ```
 az login
@@ -33,7 +35,34 @@ After logging in, if you have more than one subscripton you may need to set the 
 ```
 az account set --subscription "<your requried subscription guid>"
 ```
+## 0. Provisioning an Ubuntu VM (optional and only recommended if you are not running Windows 10):
 
+* Go to https://portal.azure.com 
+* All Services
+* Ubuntu Server
+      * Location: North Europe
+      * Subscription: Choose the relevant one
+            * No Need for optional settings
+* Wait for the server to be created (you can get started on the next steps in the lab and return...
+* Login to the Ubunto server using SSH
+      * Install Docker: (https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+```
+sudo apt-get update
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+	Should result in some pub/uid/sub lines
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+sudo apt-get update
+sudo apt-get install docker-ce
+```
 
 ## 1. Provisioning a Cosmos DB instance
 
