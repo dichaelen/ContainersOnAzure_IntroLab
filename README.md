@@ -21,6 +21,7 @@ For this Lab you will require Windows machine with the following:
 * Install the Azure CLI 2.0, get it here - https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 * Install Docker, get it here - https://docs.docker.com/engine/installation/
 * Install Kubectl, get it here - https://kubernetes.io/docs/tasks/tools/install-kubectl/
+
 * Install Postman, get it here - https://www.getpostman.com - this is optional but useful
 
 If you are using an older Windows version we recommend you using an Ubuntu VM, connect to it using SSH, and run the Docker commands there. You can still run the Azure CLI locally. If you don't have and SSH tool installed you can get Putty [Putty](https://www.putty.org/).
@@ -41,9 +42,10 @@ This is an optional step and only recommended if you are not running Windows 10)
 * Go to https://portal.azure.com 
 * All Services
 * Ubuntu Server
+  * Provide a username and password (you will need this later when connecting using SSH)
   * Location: West Europe
-     * Subscription: Choose the relevant one
-  * No Need for optional settings
+     * Subscription: Type in a unqiue name
+  * No need for optional settings
 * Wait for the server to be created - you can get started on the next steps in the lab and return. here after 5-10 mins... An altert will also pop-up in the portal when deployment is completed.
 * Login to the Ubunto server using your SSH tool
       * Install Docker by running the commands below (official guide [here](https://docs.docker.com/install/linux/docker-ce/ubuntu/)):
