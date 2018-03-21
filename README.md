@@ -3,17 +3,16 @@ This lab aims to show a few ways you can quickly deploy container workloads to A
 
 # What is it?
 
-This intro lab serves to guide you on a few ways you can deploy a container on Azure, namely:
-
-*	Deploy a container on App Service PaaS platform
-*	Deploy a container on an Azure Container Instance (managed Kubernetes instance)
-*	Deploy a managed Kubernetes cluster on Azure using Azure Container Service (AKS) and deploy our container onto it
-* Write to Azure Cosmos DB. [Cosmos DB](https://azure.microsoft.com/en-us/services/cosmos-db/) is Microsoft's globally distributed, multi-model database 
-* Use [Application Insights](https://azure.microsoft.com/en-us/services/application-insights/) to track custom events in the container
+This intro lab serves to guide you on two ways you can deploy a container on Azure (there are more than this...), namely:
+*	Deploy a container on an Azure Container Instances (ACI) [ACI](https://azure.microsoft.com/en-us/services/container-instances/)
+*	Deploy a managed Kubernetes cluster on Azure using Azure Container Service (AKS) [AKS](https://docs.microsoft.com/en-us/azure/aks/) and deploy our container onto it
+*     Push your containers to a private registry using Azure Container Registry (ACR) [ACR](https://azure.microsoft.com/en-us/services/container-registry/)
+*     Write to Azure Cosmos DB. [Cosmos DB](https://azure.microsoft.com/en-us/services/cosmos-db/) is Microsoft's globally distributed, multi-model database 
+*     Use [Application Insights](https://azure.microsoft.com/en-us/services/application-insights/) to track custom events in the container
 
 # Technology used
 
-* Our container contains a swagger enabled API developed in Go which writes a simple order via json to your specified Cosmos DB and tracks custom events via Application Insights.
+* Our container contains a swagger enabled API developed in Go which writes a simple order via json to your specified Cosmos DB and tracks custom events via Application Insights.  
 
 # Preparing for this lab
 
