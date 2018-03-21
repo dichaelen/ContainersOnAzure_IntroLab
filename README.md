@@ -48,7 +48,7 @@ This is an optional step and only recommended if you are not running Windows 10)
   * No need for optional settings
 * Wait for the server to be created - you can get started on the next steps in the lab and return. here after 5-10 mins... An altert will also pop-up in the portal when deployment is completed.
 * Login to the Ubunto server using your SSH tool
-      * Install Docker by running the commands below (official guide [here](https://docs.docker.com/install/linux/docker-ce/ubuntu/)):
+  * Install Docker by running the commands below (official guide [here](https://docs.docker.com/install/linux/docker-ce/ubuntu/)):
 ```
 sudo apt-get update
 
