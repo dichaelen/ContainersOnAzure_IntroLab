@@ -1,11 +1,11 @@
 # Intro to Containers on Azure
-This lab aims to show a few ways you can quickly deploy container workloads to Azure.
+This lab aims to show how you can quickly deploy container workloads to Azure.
 
 # What is it?
 
 This intro lab serves to guide you on two ways you can deploy a container on Azure (there are more than this...), namely:
-*	Deploy a container on an Azure Container Instances (ACI) [ACI](https://azure.microsoft.com/en-us/services/container-instances/)
-*	Deploy a managed Kubernetes cluster on Azure using Azure Container Service (AKS) [AKS](https://docs.microsoft.com/en-us/azure/aks/) and deploy our container onto it
+*     Deploy a container on an Azure Container Instances (ACI) [ACI](https://azure.microsoft.com/en-us/services/container-instances/)
+*     Deploy a managed Kubernetes cluster on Azure using Azure Container Service (AKS) [AKS](https://docs.microsoft.com/en-us/azure/aks/) and deploy our container onto it
 *     Push your containers to a private registry using Azure Container Registry (ACR) [ACR](https://azure.microsoft.com/en-us/services/container-registry/)
 *     Write to Azure Cosmos DB. [Cosmos DB](https://azure.microsoft.com/en-us/services/cosmos-db/) is Microsoft's globally distributed, multi-model database 
 *     Use [Application Insights](https://azure.microsoft.com/en-us/services/application-insights/) to track custom events in the container
@@ -293,6 +293,10 @@ Click edit on one of the charts, select a TimeRange and set the Filters to the e
 Finally, for more powerful queries, select the 'Analytics' button, see below:
 
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/Analytics.png)
+
+## 8. Clean up the resources you have created
+
+If you dont want to keep using the services you have created during this lab you can now go to the portal and delete the entire resource group. AS you have seen you very quickly create them again :-)
 
 
 <!-- LINKS - external -->
