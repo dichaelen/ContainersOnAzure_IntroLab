@@ -36,15 +36,16 @@ After logging in, if you have more than one subscripton you may need to set the 
 ```
 az account set --subscription "<your requried subscription guid>"
 ```
-## 0. Provisioning an Ubuntu VM 
-This is an optional step and only recommended if you are not running Windows 10):
+## 0. Provisioning an Ubuntu VM (optional)
+This is an optional step and only recommended if you are _not_ running Windows 10:
 
 * Go to https://portal.azure.com 
 * All Services
-* Ubuntu Server
+* Find `Ubuntu Server 16.04 LTS`
   * Provide a username and password (you will need this later when connecting using SSH)
   * Location: West Europe
      * Subscription: Type in a unqiue name
+  * VM type: B2s 
   * No need for optional settings
 * Wait for the server to be created - you can get started on the next steps in the lab and return. here after 5-10 mins... An altert will also pop-up in the portal when deployment is completed.
 * Login to the Ubunto server using your SSH tool
@@ -127,10 +128,16 @@ See below:
 
 ## 4. Pull the container to your environment and set the environment keys
 
-Open up your docker command window (if using Windows open it with elevated privileges on Linux add sudo in front) and type the following:
+Open up your docker command window and type the following:
 
 ``` 
+WINDOWS:
+
 docker pull beermug/go_order_sb
+
+LINUX:
+
+sudo docker pull beermug/go_order_sb
 ```
 
 We will now test the image locally to ensure that it is working and connecting to our CosmosDB and Application Insights instances. The keys you copied for the DB and App Insights keys are set as environment variables within the container, so we will need to ensure we populate these.
@@ -141,9 +148,15 @@ The environment keys that need to be set are as follows:
 * INSIGHTSKEY: <you app insights key from step 2>
 * SOURCE: This is a free text field which we will use specify where we are running the container from. E.g. you can use the values localhost, ACI and AKS for your labs.
 
-So to run the container on your local machine, enter the following command, substituting your environment variable values (if you are running Docker on Windows, omit the 'sudo'):
+So to run the container on your local machine, enter the following command, substituting your environment variable values:
 
 ```
+WINDOWS:
+
+docker run --name go_order_sb -p 8080:8080 -e DATABASE="<your cosmodb username from step 1>" -e PASSWORD="<your cosmodb password from step 1>" -e INSIGHTSKEY="<you app insights key from step 2>" -e SOURCE="localhost" --rm -i -t beermug/go_order_sb
+
+LINUX:
+
 sudo docker run --name go_order_sb -p 8080:8080 -e DATABASE="<your cosmodb username from step 1>" -e PASSWORD="<your cosmodb password from step 1>" -e INSIGHTSKEY="<you app insights key from step 2>" -e SOURCE="localhost" --rm -i -t beermug/go_order_sb
 ```
 Note, the application runs on port 8080 which we will bind to the host as well. If you are running on Windows, select 'Allow Access' on Windows Firewall.
@@ -154,7 +167,7 @@ If all goes well, you should see the application running on localhost:8080, see 
 On Windows you can navigate to localhost:8080/swagger and test the api (use Chrome or Firefox). Select the 'POST' /order/ section, select the button "Try it out" and enter some values in the JSON provided and select "Execute", see below:
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/swagger.png)
 
-On Linux you can use (you might need an additional terminal for this and probably change the values in the JSON):
+On Linux you can use _curl_ (you might need an additional terminal for this and change the values in the JSON):
 ```
 curl -X POST "http://localhost:8080/v1/order/" -H  "accept: application/json" -H  "content-type: application/json" -d "{  \"EmailAddress\": \"string\",  \"ID\": \"string\",  \"PreferredLanguage\": \"string\",  \"Product\": \"string\",  \"Source\": \"string\",  \"Total\": 0}"
 ```
@@ -180,17 +193,28 @@ Navigate to the Azure Container Registry instance you provisioned within the Azu
 Now we will push the image up to the Azure Container Registry, enter the following (from the quickstart screen):
 
 ``` 
+WINDOWS:
+
 docker login <yourcontainerregistryinstance>.azurecr.io
 
+LINUX:
+
+sudo docker login <yourcontainerregistryinstance>.azurecr.io
 ```
 
 To get the username and password, navigate to the *Access Keys* blade, see below:
 
 ![alt text](https://github.com/shanepeckham/CADScenario_Recommendations/blob/master/images/acskeys.png)
 
-You will receive a 'Login Succeeded' message. Now type the following (add sudo for Linux):
+You will receive a 'Login Succeeded' message. Now type the following:
 ```
+WINDOWS:
+
 docker tag beermug/go_order_sb <yourcontainerregistryinstance>.azurecr.io/go_order_sb
+docker push <yourcontainerregistryinstance>.azurecr.io/go_order_sb
+
+LINUX:
+sudo docker tag beermug/go_order_sb <yourcontainerregistryinstance>.azurecr.io/go_order_sb
 docker push <yourcontainerregistryinstance>.azurecr.io/go_order_sb
 ```
 Once this has completed, you will be able to see your container uploaded to the Container Registry within the portal, see below:
@@ -201,7 +225,7 @@ Once this has completed, you will be able to see your container uploaded to the 
 
 Now we will deploy our container to [Azure Container Instances](https://azure.microsoft.com/en-us/services/container-instances/). 
 
-We will deploy our container instance via the Azure CLI directly.
+We will deploy our container instance via the Azure CLI directly. You can use your Windows machine for this, but of course the CLI is cross platform so you can also install on Mac or Linux.
 
 ```
 az container create -n go-order-sb -g <myResourceGroup> -e DATABASE=<your cosmodb username from step 1> PASSWORD=<your cosmodb password from step 1> INSIGHTSKEY=<your app insights key from step 2> SOURCE="ACI"--image <yourcontainerregistryinstance>.azurecr.io/go_order_sb:latest --registry-password <your acr admin password> --memory 1 --cpu 1 --dns-name-label <unique dns prefix> --ports 8080
@@ -236,14 +260,14 @@ After registering, you are now ready to create a Kubernetes cluster with AKS.
 
 ## Create Kubernetes cluster
 
-Use the [az aks create](https://docs.microsoft.com/en-us/cli/azure/aks?view=azure-cli-latest#az_aks_create) command to create an AKS cluster. The following example creates a cluster named myAKSCluster with three nodes.
+Use the `az aks create` command to create an AKS cluster. The following example creates a cluster named myAKSCluster with three nodes.
 This takes about 10 minutes, so grab a cup of coffee, read the documentation: https://docs.microsoft.com/en-us/azure/aks/intro-kubernetes or watch a video: https://channel9.msdn.com/Shows/Azure-Friday/Container-Orchestration-Simplified-with-Managed-Kubernetes-in-Azure-Container-Service-AKS...
 
 ```
 az aks create --resource-group <myResourceGroup> --location westeurope --name myAKSCluster --node-count 3 --generate-ssh-keys --debug
 ```
 
-To manage a Kubernetes cluster, use [kubectl][kubectl], the Kubernetes command-line client.
+To manage a Kubernetes cluster, use `kubectl`, the Kubernetes command-line client.
 
 If you're using Azure Cloud Shell, kubectl is already installed. You should already have installed the kubectl as part of the pre-reqa, if not you can use this command:
 
@@ -251,13 +275,13 @@ If you're using Azure Cloud Shell, kubectl is already installed. You should alre
 az aks install-cli
 ```
 
-To configure kubectl to connect to your Kubernetes cluster, use the _"az aks get-credentials"_ command. This step downloads credentials and configures the Kubernetes CLI to use them.
+To configure kubectl to connect to your Kubernetes cluster, use the `az aks get-credentials` command. This step downloads credentials and configures the Kubernetes CLI to use them.
 
 ```
 az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
 ```
 
-To verify the connection to your cluster, use the _"kubectl get"_ command to return a list of the cluster nodes. Note that this can take a few minutes to appear.
+To verify the connection to your cluster, use the `kubectl get` command to return a list of the cluster nodes. Note that this can take a few minutes to appear.
 
 ```
 kubectl get nodes
@@ -281,10 +305,9 @@ In the Kubernetes dashboard you should now see this created within the secrets s
 
 ### Associate the environment variables with container we want to deploy to Kubernetes
 
-We will now deploy our container via a yaml file, which is [here](https://github.com/mpeder/ContainersOnAzure_IntroLab/blob/master/go_order_sb.yaml) but before we do, we need to edit this file to ensure we set our environment variables and ensure that you have set your private Azure Container Registry correctly:
+We will now deploy our container via a yaml file `go_order_sb.yaml`, which is [here](https://github.com/mpeder/ContainersOnAzure_IntroLab/blob/master/go_order_sb.yaml) but before we do, we need to edit this file to ensure we set our environment variables and ensure that you have set your private Azure Container Registry correctly:
 
 ```
-
 spec:
       containers:
       - name: goordersb
