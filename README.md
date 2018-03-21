@@ -35,34 +35,46 @@ After logging in, if you have more than one subscripton you may need to set the 
 ```
 az account set --subscription "<your requried subscription guid>"
 ```
-## 0. Provisioning an Ubuntu VM (optional and only recommended if you are not running Windows 10):
+## 0. Provisioning an Ubuntu VM 
+This is an optional step and only recommended if you are not running Windows 10):
 
 * Go to https://portal.azure.com 
 * All Services
 * Ubuntu Server
-      * Location: North Europe
-      * Subscription: Choose the relevant one
-            * No Need for optional settings
-* Wait for the server to be created (you can get started on the next steps in the lab and return...
-* Login to the Ubunto server using SSH
-      * Install Docker: (https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+  * Location: West Europe
+     * Subscription: Choose the relevant one
+  * No Need for optional settings
+* Wait for the server to be created - you can get started on the next steps in the lab and return. here after 5-10 mins... An altert will also pop-up in the portal when deployment is completed.
+* Login to the Ubunto server using your SSH tool
+      * Install Docker by running the commands below (official guide [here](https://docs.docker.com/install/linux/docker-ce/ubuntu/)):
 ```
 sudo apt-get update
+
 sudo apt-get install \
     apt-transport-https \
     ca-certificates \
     curl \
     software-properties-common
+
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
 sudo apt-key fingerprint 0EBFCD88
-	Should result in some pub/uid/sub lines
+
 sudo add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
    $(lsb_release -cs) \
    stable"
+
 sudo apt-get update
+
 sudo apt-get install docker-ce
 ```
+To validate that your Docker Engine is running execute the following command:
+```
+sudo docker run hello-world
+```
+You should get an output stating something like: _"Hello from Docker!
+This message shows that your installation appears to be working correctly."_
 
 ## 1. Provisioning a Cosmos DB instance
 
@@ -92,7 +104,7 @@ In the Azure portal, select create new Application Insights instance, enter the 
 See below:
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/ApplicationInsights.png)
 
-Once Application Insights is provisioned, we need to get the Instrumentation key, this may be found in the Overview section. We will need this to run our container, so copy it for convenient access. See below:
+Once Application Insights is provisioned, we need to get the Instrumentation key, this may be found in the Configure section under Properties. We will need this to run our container, so copy it for convenient access. See below:
 
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/AppKey.png)
 
@@ -113,7 +125,7 @@ See below:
 
 ## 4. Pull the container to your environment and set the environment keys
 
-Open up your docker command window (if using Windows open it with elevated privileges) and type the following:
+Open up your docker command window (if using Windows open it with elevated privileges on Linux add sudo in front) and type the following:
 
 ``` 
 docker pull beermug/go_order_sb
@@ -130,20 +142,25 @@ The environment keys that need to be set are as follows:
 So to run the container on your local machine, enter the following command, substituting your environment variable values (if you are running Docker on Windows, omit the 'sudo'):
 
 ```
-sudo docker run --name go_order_sb -p 8080:8080 -e DATABASE="<your cosmodb username from step 1>" -e PASSWORD="<your cosmodb password from step 1>" -e INSIGHTSKEY="<you app insights key from step 2>" -e SOURCE="localhost"  --rm -i -t beermug/go_order_sb
+sudo docker run --name go_order_sb -p 8080:8080 -e DATABASE="<your cosmodb username from step 1>" -e PASSWORD="<your cosmodb password from step 1>" -e INSIGHTSKEY="<you app insights key from step 2>" -e SOURCE="localhost" --rm -i -t beermug/go_order_sb
 ```
 Note, the application runs on port 8080 which we will bind to the host as well. If you are running on Windows, select 'Allow Access' on Windows Firewall.
 
 If all goes well, you should see the application running on localhost:8080, see below:
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/localrun.png)
 
-Now you can navigate to localhost:8080/swagger and test the api (use Chrome or Firefox). Select the 'POST' /order/ section, select the button "Try it out" and enter some values in the json provided and select "Execute", see below:
+On Windows you can navigate to localhost:8080/swagger and test the api (use Chrome or Firefox). Select the 'POST' /order/ section, select the button "Try it out" and enter some values in the JSON provided and select "Execute", see below:
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/swagger.png)
+
+On Linux you can use (you might need an additional terminal for this and probably change the values in the JSON):
+```
+curl -X POST "http://localhost:8080/v1/order/" -H  "accept: application/json" -H  "content-type: application/json" -d "{  \"EmailAddress\": \"string\",  \"ID\": \"string\",  \"PreferredLanguage\": \"string\",  \"Product\": \"string\",  \"Source\": \"string\",  \"Total\": 0}"
+```
 
 If the request succeeded, you will get a CosmosDB Id returned for the order you have just placed, see below:
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/swaggerresponse.png)
 
-We can now go and query CosmosDB to check our entry there, in the Azure portal, navigate back to your Cosmos DB instance and go to the section Data Explorer (note, at the time of writing this is in preview so is subject to change). We can now query for the order we placed. A collection called 'orders' will have been created within your database, you can then apply a filter for the id we created, namely:
+We can now go and query CosmosDB to check our entry there, in the Azure portal, navigate back to your Cosmos DB instance and go to the section Data Explorer. We can now query for the order we placed. A collection called 'orders' will have been created within your database, you can then apply a filter for the id we created, namely:
 
 ```
 {"id":"5995b963134e4f007bc45447"}
@@ -169,7 +186,7 @@ To get the username and password, navigate to the *Access Keys* blade, see below
 
 ![alt text](https://github.com/shanepeckham/CADScenario_Recommendations/blob/master/images/acskeys.png)
 
-You will receive a 'Login Succeeded' message. Now type the following:
+You will receive a 'Login Succeeded' message. Now type the following (add sudo for Linux):
 ```
 docker tag beermug/go_order_sb <yourcontainerregistryinstance>.azurecr.io/go_order_sb
 docker push <yourcontainerregistryinstance>.azurecr.io/go_order_sb
@@ -226,20 +243,19 @@ az aks create --resource-group <myResourceGroup> --location westeurope --name my
 
 To manage a Kubernetes cluster, use [kubectl][kubectl], the Kubernetes command-line client.
 
-If you're using Azure Cloud Shell, kubectl is already installed. If you want to install it locally, use the [az aks install-cli][az-aks-install-cli] command.
-
+If you're using Azure Cloud Shell, kubectl is already installed. You should already have installed the kubectl as part of the pre-reqa, if not you can use this command:
 
 ```
 az aks install-cli
 ```
 
-To configure kubectl to connect to your Kubernetes cluster, use the [az aks get-credentials][az-aks-get-credentials] command. This step downloads credentials and configures the Kubernetes CLI to use them.
+To configure kubectl to connect to your Kubernetes cluster, use the _"az aks get-credentials"_ command. This step downloads credentials and configures the Kubernetes CLI to use them.
 
 ```
 az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
 ```
 
-To verify the connection to your cluster, use the [kubectl get][kubectl-get] command to return a list of the cluster nodes. Note that this can take a few minutes to appear.
+To verify the connection to your cluster, use the _"kubectl get"_ command to return a list of the cluster nodes. Note that this can take a few minutes to appear.
 
 ```
 kubectl get nodes
@@ -305,7 +321,7 @@ You should get a success message that a deployment and service has been created.
 
 ![alt text](https://github.com/shanepeckham/ContainersOnAzure_MiniLab/blob/master/images/k8service.png)
 
-You can now navigate to http://k8serviceendpoint:8080/swagger and test your API
+Note that it might take a couple of minutes to get the external IP in place. Once ready you can navigate to http://yourk8serviceendpoint:8080/swagger and test your API
 
 ### View container telemetry in Application Insights
 
@@ -325,7 +341,7 @@ Finally, for more powerful queries, select the 'Analytics' button, see below:
 
 ## 8. Clean up the resources you have created
 
-If you dont want to keep using the services you have created during this lab you can now go to the portal and delete the entire resource group. AS you have seen you very quickly create them again :-)
+If you don't want to keep using the services you have created during this lab you can go to the portal and delete the entire resource group. As you have seen you can very quickly create them again. Azure is awesome!!! :-)
 
 
 <!-- LINKS - external -->
