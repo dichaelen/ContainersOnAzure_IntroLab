@@ -96,7 +96,7 @@ The environment keys that need to be set are as follows:
 * DATABASE: <your cosmodb username from step 1>
 * PASSWORD: <your cosmodb password from step 1>
 * INSIGHTSKEY: <you app insights key from step 2>
-* SOURCE: This is a free text field which we will use specify where we are running the container from. I use the values localhost, AppService, ACI and K8 for my tests
+* SOURCE: This is a free text field which we will use specify where we are running the container from. E.g. you can use the values localhost, ACI and AKS for your labs.
 
 So to run the container on your local machine, enter the following command, substituting your environment variable values (if you are running Docker on Windows, omit the 'sudo'):
 
