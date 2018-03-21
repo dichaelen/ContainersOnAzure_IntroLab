@@ -23,9 +23,9 @@ For this Lab you will require Windows machine with the following:
 * Install Kubectl, get it here - https://kubernetes.io/docs/tasks/tools/install-kubectl/
 * Install Postman, get it here - https://www.getpostman.com - this is optional but useful
 
-When using the Azure CLI, you first have to log in. You do this by running the command below, and follow the instructions. This will guide you to open a browser and enter a code, after which you can enter your credentials to start a session.
-
 If you are using an older Windows version we recommend you using an Ubuntu VM, connect to it using SSH, and run the Docker commands there. You can still run the Azure CLI locally. If you don't have and SSH tool installed you can get Putty [Putty](https://www.putty.org/).
+
+When using the Azure CLI, you first have to log in. You do this by running the command below, and follow the instructions. This will guide you to open a browser and enter a code, after which you can enter your credentials to start a session.
 
 ```
 az login
