@@ -3,7 +3,7 @@ This lab aims to show how you can quickly deploy container workloads to Azure.
 
 # What is it?
 
-This intro lab serves to guide you on two ways you can deploy a container on Azure (there are more than this...), namely:
+This intro lab serves to guide you on two of, the many ways, you can deploy a container on Azure, namely:
 * Deploy a container on an Azure Container Instances (ACI) [ACI](https://azure.microsoft.com/en-us/services/container-instances/)
 * Deploy a managed Kubernetes cluster on Azure using Azure Container Service (AKS) [AKS](https://docs.microsoft.com/en-us/azure/aks/) and deploy our container onto it
 * Push your containers to a private registry using Azure Container Registry (ACR) [ACR](https://azure.microsoft.com/en-us/services/container-registry/)
