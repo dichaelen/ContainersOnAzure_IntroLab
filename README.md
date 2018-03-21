@@ -4,9 +4,9 @@ This lab aims to show how you can quickly deploy container workloads to Azure.
 # What is it?
 
 This intro lab serves to guide you on two of, the many ways, you can deploy a container on Azure, namely:
-* Deploy a container on an Azure Container Instances (ACI) [ACI](https://azure.microsoft.com/en-us/services/container-instances/)
-* Deploy a managed Kubernetes cluster on Azure using Azure Container Service (AKS) [AKS](https://docs.microsoft.com/en-us/azure/aks/) and deploy our container onto it
-* Push your containers to a private registry using Azure Container Registry (ACR) [ACR](https://azure.microsoft.com/en-us/services/container-registry/)
+* Deploy a container on an [Azure Container Instances](https://azure.microsoft.com/en-us/services/container-instances/) (ACI) 
+* Deploy a managed Kubernetes cluster on Azure using [Azure Container Service](https://docs.microsoft.com/en-us/azure/aks/) (AKS) and deploy our container onto it
+* Push your containers to a private registry using [Azure Container Registry](https://azure.microsoft.com/en-us/services/container-registry/) (ACR) 
 * Write to Azure Cosmos DB. [Cosmos DB](https://azure.microsoft.com/en-us/services/cosmos-db/) is Microsoft's globally distributed, multi-model database 
 * Use [Application Insights](https://azure.microsoft.com/en-us/services/application-insights/) to track custom events in the container
 
