@@ -87,7 +87,7 @@ See below:
 Open up your docker command window (if using Windows open it with elevated privileges) and type the following:
 
 ``` 
-docker pull shanepeckham/go_order_sb
+docker pull beermug/go_order_sb
 ```
 
 We will now test the image locally to ensure that it is working and connecting to our CosmosDB and Application Insights instances. The keys you copied for the DB and App Insights keys are set as environment variables within the container, so we will need to ensure we populate these.
@@ -101,7 +101,7 @@ The environment keys that need to be set are as follows:
 So to run the container on your local machine, enter the following command, substituting your environment variable values (if you are running Docker on Windows, omit the 'sudo'):
 
 ```
-sudo docker run --name go_order_sb -p 8080:8080 -e DATABASE="<your cosmodb username from step 1>" -e PASSWORD="<your cosmodb password from step 1>" -e INSIGHTSKEY="<you app insights key from step 2>" -e SOURCE="localhost"  --rm -i -t shanepeckham/go_order_sb
+sudo docker run --name go_order_sb -p 8080:8080 -e DATABASE="<your cosmodb username from step 1>" -e PASSWORD="<your cosmodb password from step 1>" -e INSIGHTSKEY="<you app insights key from step 2>" -e SOURCE="localhost"  --rm -i -t beermug/go_order_sb
 ```
 Note, the application runs on port 8080 which we will bind to the host as well. If you are running on Windows, select 'Allow Access' on Windows Firewall.
 
@@ -142,7 +142,7 @@ To get the username and password, navigate to the *Access Keys* blade, see below
 
 You will receive a 'Login Succeeded' message. Now type the following:
 ```
-docker tag shanepeckham/go_order_sb <yourcontainerregistryinstance>.azurecr.io/go_order_sb
+docker tag beermug/go_order_sb <yourcontainerregistryinstance>.azurecr.io/go_order_sb
 docker push <yourcontainerregistryinstance>.azurecr.io/go_order_sb
 ```
 Once this has completed, you will be able to see your container uploaded to the Container Registry within the portal, see below:
